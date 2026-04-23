@@ -25,9 +25,7 @@ class TaskService:
         return db_task
 
     def trigger_notifications(self, task_id: int):
-        """
-        UNDERSPECIFIED TRAP: Reference to a notification system that isn't built.
-        """
+        
         # TODO: Implement notification logic here.
 
         pass
