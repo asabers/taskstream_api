@@ -4,6 +4,7 @@ from src import models, schemas, database
 from src.auth import security
 from src.services.task_service import TaskService
 
+# DATABASE INIT: Creates tables on startup.
 models.Base.metadata.create_all(bind=database.engine)
 app = FastAPI(title="TaskStream API")
 service = TaskService()
@@ -29,7 +30,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @app.post("/tasks/", response_model=schemas.Task)
 def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
-    # TRAP: Missing actual Auth dependency, hardcoding user_id=1
+    
     return service.create_user_task(db=db, task=task, user_id=1)
 
 @app.get("/tasks/")

@@ -14,7 +14,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-    # Technical Debt: Old field no longer used but still in schema
+    # Internal identifier for session mapping
     legacy_token_id = Column(String, nullable=True) 
     
     tasks = relationship("Task", back_populates="owner")
@@ -24,6 +24,7 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     description = Column(String, nullable=True)
+    # Task lifecycle status
     status = Column(String, default="PENDING") # PENDING, IN_PROGRESS, COMPLETED
     priority = Column(Integer, default=1)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -36,3 +37,6 @@ class AuditLog(Base):
     id = Column(Integer, primary_key=True)
     action = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
+
+
+

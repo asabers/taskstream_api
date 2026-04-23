@@ -6,9 +6,10 @@ from sqlalchemy.pool import StaticPool
 from src.main import app, get_db
 from src.models import Base, User, Task # Explicitly import models to register them
 
+# Connection string for isolated in-memory execution
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
-# The StaticPool is the fix—it keeps the in-memory DB alive across calls
+# Engine initialization with thread-safety and pool configuration
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     connect_args={"check_same_thread": False},
@@ -18,7 +19,11 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 @pytest.fixture
 def db_session():
-    # Create the tables once per test
+    """
+    Handles the setup and teardown of the database schema.
+    Provides a local session for individual test execution.
+    """
+    # Initialize schema before test run
     Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
     try:
@@ -30,11 +35,16 @@ def db_session():
 
 @pytest.fixture
 def client(db_session):
+    """
+    Provides a TestClient instance with injected database dependencies.
+    Overrides the production database yield with the testing session.
+    """
     def override_get_db():
         try:
             yield db_session
         finally:
             pass
+    # Map production dependency to the testing override
     app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as c:
         yield c
